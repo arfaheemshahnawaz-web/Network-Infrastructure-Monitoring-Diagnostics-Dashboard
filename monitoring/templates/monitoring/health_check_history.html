@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Check History</title>
+</head>
+<body>
+    <h1>Health Check History</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Device</th>
+                <th>Status</th>
+                <th>Latency</th>
+                <th>Packet Loss</th>
+                <th>Checked At</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for check in checks %}
+            <tr>
+                <td>{{ check.device.hostname }}</td>
+                <td>{{ check.status }}</td>
+                <td>{{ check.latency }}</td>
+                <td>{{ check.packet_loss }}</td>
+                <td>{{ check.checked_at }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

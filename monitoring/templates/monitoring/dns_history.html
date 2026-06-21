@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DNS Check History</title>
+</head>
+<body>
+    <h1>DNS Check History</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Device</th>
+                <th>Domain</th>
+                <th>Resolved IP</th>
+                <th>Lookup Time</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for records in records %}
+            <tr>
+                <td>{{ records.device.hostname }}</td>
+                <td>{{ records.domain }}</td>
+                <td>{{ records.resolved_ip }}</td>
+                <td>{{ records.lookup_time }}</td>
+            </tr>
+            {% endfor %}
+</body>
+</html>
