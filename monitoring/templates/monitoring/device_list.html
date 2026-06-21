@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Device List</title>
+</head>
+    <body>
+        <h1>Devices</h1>
+        <a href="{% url 'add_device' %}">Add New Device</a>
+        <table>
+            <thead>
+                <tr>
+                    <th>Hostname</th>
+                    <th>IP Address</th>
+                    <th>Device Type</th>
+                    <th>OS Type</th>
+                    <th>Location</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for device in devices %}
+                <tr>
+                    <td>{{ device.hostname }}</td>
+                    <td>{{ device.ip_address }}</td>
+                    <td>{{ device.device_type }}</td>
+                    <td>{{ device.os_type }}</td>
+                    <td>{{ device.location }}</td>
+                    <td>{{ device.status }}</td>
+                    <td>
+                        <a href="{% url 'edit_device' device.id %}">Edit</a>
+                        <a href="{% url 'delete_device' device.id %}">Delete</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </body>
+</html>
