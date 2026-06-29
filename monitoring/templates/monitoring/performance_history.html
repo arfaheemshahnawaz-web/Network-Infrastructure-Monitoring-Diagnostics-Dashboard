@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Performance History</title>
+</head>
+<body>
+    <h1>Performance History</h1>
+    <table border="1">
+        <tr>
+            <th>Device</th>
+            <th>CPU %</th>
+            <th>Memory %</th>
+            <th>Bytes Sent</th>
+            <th>Bytes Received</th>
+            <th>Timestamp</th>
+        </tr>
+        {% for metric in metrics %}
+        <tr>
+            <td>{{ metric.device.hostname}}</td>
+            <td>{{metric.cpu_usage}}</td>
+            <td>{{metric.memory_usage}}</td>  
+            <td>{{metric.bytes_sent}}</td> 
+            <td>{{metric.bytes_received}}</td>
+            <td>{{metric.timestamp}}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

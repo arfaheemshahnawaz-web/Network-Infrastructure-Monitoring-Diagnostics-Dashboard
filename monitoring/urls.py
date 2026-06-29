@@ -9,6 +9,10 @@ from .views import (
     run_dns_check,
     run_ping_check,
     health_check_history,
+    run_performance_check,
+    performance_history,
+    system_info,
+    device_detail
 )
 
 urlpatterns = [
@@ -21,4 +25,8 @@ urlpatterns = [
     path('devices/history/', health_check_history, name='health_check_history'),
     path('devices/dns_check/<int:pk>/', run_dns_check, name='run_dns_check'),
     path('devices/dns_history/', dns_check_history, name='dns_check_history'),
+    path('devices/performance/<int:pk>/',run_performance_check,name="run_performance_check" ),
+    path('devices/performance_history/',performance_history,name="performance_history"),
+    path('devices/system_info/',system_info, name="system_info"),
+    path("devices/<int:pk>/",device_detail,name="device_detail",),
 ]

@@ -2,12 +2,15 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .forms import DeviceForm
 from monitoring.services.ping_service import ConnectivityTester  
 from monitoring.services.dns_service import DNSService 
+from monitoring.services.performance_service import PerformanceService
+from monitoring.services.system_info import SystemInfoService
 
 # Create your views here.
 from .models import (
     Device,
     HealthCheck,
     DNSCheck,
+    PerformanceMetric,
 )
 
 def dashboard(request):
@@ -99,3 +102,64 @@ def run_dns_check(request, pk):
 def dns_check_history(request):
     records = DNSCheck.objects.select_related('device').order_by("-checked_at")
     return render(request, 'monitoring/dns_history.html', {'records': records})
+
+def run_performance_check(request, pk):
+    device = get_object_or_404(Device, pk=pk)
+    metrics = PerformanceService.get_metrics()
+    PerformanceMetric.objects.create(
+        device=device,
+        cpu_usage= metrics["cpu_usage"],
+        memory_usage=metrics["memory_usage"],
+        bytes_sent=metrics['bytes_sent'],
+        bytes_received=metrics['bytes_received'],
+    )
+
+    return redirect("device_list")
+
+def performance_history(request):
+    metrics=PerformanceMetric.objects.select_related('device').order_by('-timestamp')
+    return render(request, 'monitoring/performance_history.html',{"metrics":metrics})
+
+def system_info(request):
+    info = SystemInfoService.get_info()
+    return render(
+        request,'monitoring/system_info.html',{"info":info}
+    )
+
+def device_detail(request, pk):
+
+    device = get_object_or_404(Device, pk=pk)
+
+    latest_ping = (
+        HealthCheck.objects
+        .filter(device=device)
+        .order_by("-checked_at")
+        .first()
+    )
+
+    latest_dns = (
+        DNSCheck.objects
+        .filter(device=device)
+        .order_by("-checked_at")
+        .first()
+    )
+
+    latest_performance = (
+        PerformanceMetric.objects
+        .filter(device=device)
+        .order_by("-timestamp")
+        .first()
+    )
+
+    context = {
+        "device": device,
+        "latest_ping": latest_ping,
+        "latest_dns": latest_dns,
+        "latest_performance": latest_performance,
+    }
+
+    return render(
+        request,
+        "monitoring/device_detail.html",
+        context,
+    )

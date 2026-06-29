@@ -29,10 +29,12 @@
                     <td>{{ device.location }}</td>
                     <td>{{ device.status }}</td>
                     <td>
+                        <a href="{% url 'device_detail' device.id %}">View</a>
                         <a href="{% url 'edit_device' device.id %}">Edit</a>
                         <a href="{% url 'delete_device' device.id %}">Delete</a>
                         <a href="{% url 'run_ping_check' device.id %}">Ping</a>
                         <a href="{% url 'run_dns_check' device.id %}">DNS Check</a>
+                        <a href="{% url 'run_performance_check' device.id %}">Performance Check</a> 
                     </td>
                 </tr>
                 {% endfor %}

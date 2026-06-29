@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Device Detail</title>
+</head>
+<body>
+    <h1>{{ device.hostname }}</h1>
+
+<hr>
+
+<h2>Device Information</h2>
+
+<ul>
+    <li><strong>IP:</strong> {{ device.ip_address }}</li>
+    <li><strong>Type:</strong> {{ device.device_type }}</li>
+    <li><strong>Operating System:</strong> {{ device.os_type }}</li>
+    <li><strong>Location:</strong> {{ device.location }}</li>
+</ul>
+
+<hr>
+
+<h2>Latest Ping</h2>
+
+{% if latest_ping %}
+
+<p>Status: {{ latest_ping.status }}</p>
+<p>Latency: {{ latest_ping.latency }} ms</p>
+<p>Packet Loss: {{ latest_ping.packet_loss }} %</p>
+
+{% else %}
+
+<p>No ping checks available.</p>
+
+{% endif %}
+
+<hr>
+
+<h2>Latest DNS</h2>
+
+{% if latest_dns %}
+
+<p>Domain: {{ latest_dns.domain }}</p>
+<p>Resolved IP: {{ latest_dns.resolved_ip }}</p>
+<p>Lookup Time: {{ latest_dns.lookup_time }} ms</p>
+
+{% else %}
+
+<p>No DNS checks available.</p>
+
+{% endif %}
+
+<hr>
+
+<h2>Latest Performance</h2>
+
+{% if latest_performance %}
+
+<p>CPU: {{ latest_performance.cpu_usage }} %</p>
+<p>Memory: {{ latest_performance.memory_usage }} %</p>
+<p>Bytes Sent: {{ latest_performance.bytes_sent }}</p>
+<p>Bytes Received: {{ latest_performance.bytes_received }}</p>
+
+{% else %}
+
+<p>No performance metrics available.</p>
+
+{% endif %}
+</body>
+</html>
