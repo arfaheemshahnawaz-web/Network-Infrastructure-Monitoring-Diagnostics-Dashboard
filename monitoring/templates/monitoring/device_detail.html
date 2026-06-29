@@ -67,5 +67,93 @@
 <p>No performance metrics available.</p>
 
 {% endif %}
+
+<h2>System Information</h2>
+
+<ul>
+    <li>Hostname: {{ system_info.hostname }}</li>
+    <li>Operating System: {{ system_info.os }}</li>
+    <li>OS Version: {{ system_info.os_version }}</li>
+    <li>Processor: {{ system_info.processor }}</li>
+    <li>Machine: {{ system_info.machine }}</li>
+    <li>Python Version: {{ system_info.python_version }}</li>
+</ul>
+
+<h2>Network Interfaces</h2>
+
+<table border="1">
+
+<tr>
+    <th>Name</th>
+    <th>IPv4</th>
+    <th>IPv6</th>
+    <th>MAC</th>
+</tr>
+
+{% for interface in interfaces %}
+
+<tr>
+    <td>{{ interface.name }}</td>
+    <td>{{ interface.ipv4 }}</td>
+    <td>{{ interface.ipv6 }}</td>
+    <td>{{ interface.mac }}</td>
+</tr>
+
+{% endfor %}
+
+</table>
+
+<h2>Default Gateway</h2>
+
+<p>{{ gateway }}</p>
+
+<h2>Configured DNS Servers</h2>
+
+<ul>
+
+{% for server in dns_servers %}
+
+<li>{{ server }}</li>
+
+{% endfor %}
+
+</ul>
+
+<hr>
+
+<h2>Nearby Wi-Fi Networks</h2>
+
+<table border="1">
+
+<tr>
+    <th>SSID</th>
+    <th>Signal</th>
+    <th>Channel</th>
+    <th>Band</th>
+    <th>Security</th>
+</tr>
+
+{% for wifi in wifi_networks %}
+
+<tr>
+    <td>{{ wifi.ssid }}</td>
+    <td>{{ wifi.signal }}%</td>
+    <td>{{ wifi.channel }}</td>
+    <td>{{ wifi.band }}</td>
+    <td>{{ wifi.security }}</td>
+</tr>
+
+{% empty %}
+
+<tr>
+    <td colspan="5">
+        No Wi-Fi Scan Available
+    </td>
+</tr>
+
+{% endfor %}
+
+</table>
+
 </body>
 </html>

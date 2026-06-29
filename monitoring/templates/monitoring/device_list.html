@@ -35,6 +35,7 @@
                         <a href="{% url 'run_ping_check' device.id %}">Ping</a>
                         <a href="{% url 'run_dns_check' device.id %}">DNS Check</a>
                         <a href="{% url 'run_performance_check' device.id %}">Performance Check</a> 
+                        <a href="{% url 'run_wifi_scan' device.id %}">Run Wi-Fi Scan</a>
                     </td>
                 </tr>
                 {% endfor %}

@@ -54,10 +54,42 @@ class PerformanceMetric(models.Model):
 
 class WiFiScan(models.Model):
 
-    device = models.ForeignKey(Device, on_delete=models.CASCADE)
-    ssid = models.CharField(max_length=100)
-    signal = models.FloatField()
-    channel = models.IntegerField()
-    security = models.CharField(max_length=100)
-    timestamp = models.DateTimeField(auto_now_add=True)
+    device = models.ForeignKey(
+        Device,
+        on_delete=models.CASCADE
+    )
 
+    ssid = models.CharField(max_length=100)
+
+    bssid = models.CharField(
+        max_length=50,
+        default="",
+        blank=True
+    )
+
+    signal = models.IntegerField(
+        default=0
+    )
+
+    channel = models.IntegerField(
+        default=0
+    )
+
+    band = models.CharField(
+        max_length=20,
+        default="",
+        blank=True
+    )
+
+    security = models.CharField(
+        max_length=50,
+        default="",
+        blank=True
+    )
+
+    scanned_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    def __str__(self):
+        return f"{self.device.hostname} - {self.ssid}"

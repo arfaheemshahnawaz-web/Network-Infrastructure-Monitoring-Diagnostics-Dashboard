@@ -2,15 +2,32 @@ import platform
 import subprocess
 import psutil
 import re
+import socket
 
 class InterfaceService:
     @staticmethod
     def get_interfaces():
-        interfaces =[]
-        for interface in psutil.net_if_addrs().keys():
-            interfaces.append({
-                "name":interface
-            })
+        interfaces = []
+        for name, addresses in psutil.net_if_addrs().items():
+            interface = {
+                "name": name,
+                "ipv4": "",
+                "ipv6": "",
+                "mac": ""
+            }
+
+            for address in addresses:
+                if address.family == socket.AF_INET:
+                    interface["ipv4"] = address.address
+
+                elif address.family == socket.AF_INET6:
+                    interface["ipv6"] = address.address
+
+                elif getattr(psutil, "AF_LINK", None) == address.family:
+                    interface["mac"] = address.address
+
+            interfaces.append(interface)
+
         return interfaces
     
 
@@ -23,7 +40,7 @@ class InterfaceService:
                 text=True
             )
             output = result.stdout
-            match= re.search(r"Default Gateway[ .:]*([\d\.]+)",output)
+            match = re.search(r"Default Gateway[^\n]*:\s*([\d\.]+)",output)
 
             if match:
                 return match.group(1)

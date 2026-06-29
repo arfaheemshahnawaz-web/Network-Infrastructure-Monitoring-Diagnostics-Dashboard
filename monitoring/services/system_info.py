@@ -14,6 +14,7 @@ class SystemInfoService:
         return{
             "hostname": hostname,
             "os": platform.platform(),
+            "os_version":platform.release(),
             "machine":platform.machine(),
             "processor": platform.processor(),
             "python_version": platform.python_version(),

@@ -4,6 +4,8 @@ from monitoring.services.ping_service import ConnectivityTester
 from monitoring.services.dns_service import DNSService 
 from monitoring.services.performance_service import PerformanceService
 from monitoring.services.system_info import SystemInfoService
+from monitoring.services.interface_service import InterfaceService
+from monitoring.services.wifi_service import WiFiService
 
 # Create your views here.
 from .models import (
@@ -11,6 +13,7 @@ from .models import (
     HealthCheck,
     DNSCheck,
     PerformanceMetric,
+    WiFiScan
 )
 
 def dashboard(request):
@@ -129,6 +132,12 @@ def system_info(request):
 def device_detail(request, pk):
 
     device = get_object_or_404(Device, pk=pk)
+    system_info= SystemInfoService.get_info()
+    interfaces = InterfaceService.get_interfaces()
+    gateway = InterfaceService.get_default_gateway()
+    dns_servers = InterfaceService.get_dns_servers()
+    wifi_networks = (WiFiScan.objects.filter(device=device).order_by("-signal"))
+    
 
     latest_ping = (
         HealthCheck.objects
@@ -156,6 +165,11 @@ def device_detail(request, pk):
         "latest_ping": latest_ping,
         "latest_dns": latest_dns,
         "latest_performance": latest_performance,
+        "system_info": system_info,
+        "interfaces": interfaces,
+        "gateway": gateway,
+        "dns_servers": dns_servers,
+        "wifi_networks": wifi_networks,
     }
 
     return render(
@@ -163,3 +177,27 @@ def device_detail(request, pk):
         "monitoring/device_detail.html",
         context,
     )
+
+def run_wifi_scan(request, pk):
+
+    device = get_object_or_404(Device, pk=pk)
+
+    networks = WiFiService.scan()
+
+    # Remove previous scan results
+    WiFiScan.objects.filter(device=device).delete()
+
+    # Save latest scan
+    for network in networks:
+
+        WiFiScan.objects.create(
+            device=device,
+            ssid=network.get("ssid", ""),
+            bssid=network.get("bssid", ""),
+            signal=network.get("signal", 0),
+            channel=network.get("channel", 0),
+            band=network.get("band", ""),
+            security=network.get("security", ""),
+        )
+
+    return redirect("device_detail", pk=device.pk)

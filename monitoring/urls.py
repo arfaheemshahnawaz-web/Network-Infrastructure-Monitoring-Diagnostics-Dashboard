@@ -12,7 +12,8 @@ from .views import (
     run_performance_check,
     performance_history,
     system_info,
-    device_detail
+    device_detail,
+    run_wifi_scan
 )
 
 urlpatterns = [
@@ -29,4 +30,6 @@ urlpatterns = [
     path('devices/performance_history/',performance_history,name="performance_history"),
     path('devices/system_info/',system_info, name="system_info"),
     path("devices/<int:pk>/",device_detail,name="device_detail",),
+    path(
+    "devices/<int:pk>/wifi/",run_wifi_scan,name="run_wifi_scan",),
 ]
