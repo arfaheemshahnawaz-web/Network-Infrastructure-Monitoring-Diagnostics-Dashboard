@@ -57,3 +57,6 @@ htmlcov/
 
 #docker
 .tar
+
+# Celery Beat Schedule
+celerybeat-schedule*

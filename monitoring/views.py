@@ -67,17 +67,9 @@ def delete_device(request, pk):
 
 def run_ping_check(request, pk):
     device = get_object_or_404(Device, pk=pk)
-    tester = ConnectivityTester()
-    result = tester.ping(device.ip_address)
+    from monitoring.services.health_check_service import HealthCheckService
 
-    # Save the result to HealthCheck model
-    HealthCheck.objects.create(
-        device=device,
-        status=result['status'],
-        latency=result['avg_latency']
-        if result['avg_latency'] != "N/A" else 0,
-        packet_loss=result['packet_loss']
-    )
+    HealthCheckService.run_ping(device)
 
     return redirect('device_list')
 
@@ -89,16 +81,8 @@ def health_check_history(request):
 
 def run_dns_check(request, pk):
     device = get_object_or_404(Device, pk=pk)
-    dns_service = DNSService()
-    result = dns_service.resolve("google.com")  # Example domain(change later)
-
-    # Save the result to DNSCheck model
-    DNSCheck.objects.create(
-        device=device,
-        domain=result['domain'],
-        resolved_ip=result['resolved_ip'],
-        lookup_time=result['lookup_time']
-    )
+    from monitoring.services.health_check_service import HealthCheckService
+    HealthCheckService.run_dns(device)
 
     return redirect('device_list')
 
@@ -108,14 +92,8 @@ def dns_check_history(request):
 
 def run_performance_check(request, pk):
     device = get_object_or_404(Device, pk=pk)
-    metrics = PerformanceService.get_metrics()
-    PerformanceMetric.objects.create(
-        device=device,
-        cpu_usage= metrics["cpu_usage"],
-        memory_usage=metrics["memory_usage"],
-        bytes_sent=metrics['bytes_sent'],
-        bytes_received=metrics['bytes_received'],
-    )
+    from monitoring.services.health_check_service import HealthCheckService
+    HealthCheckService.run_performance(device)
 
     return redirect("device_list")
 
@@ -182,22 +160,7 @@ def run_wifi_scan(request, pk):
 
     device = get_object_or_404(Device, pk=pk)
 
-    networks = WiFiService.scan()
+    from monitoring.services.health_check_service import HealthCheckService
+    HealthCheckService.run_wifi(device)
 
-    # Remove previous scan results
-    WiFiScan.objects.filter(device=device).delete()
-
-    # Save latest scan
-    for network in networks:
-
-        WiFiScan.objects.create(
-            device=device,
-            ssid=network.get("ssid", ""),
-            bssid=network.get("bssid", ""),
-            signal=network.get("signal", 0),
-            channel=network.get("channel", 0),
-            band=network.get("band", ""),
-            security=network.get("security", ""),
-        )
-
-    return redirect("device_detail", pk=device.pk)
+    return redirect("device_list")

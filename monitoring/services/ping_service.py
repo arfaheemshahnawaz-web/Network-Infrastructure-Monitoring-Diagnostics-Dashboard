@@ -30,10 +30,7 @@ class ConnectivityTester:
         # Latency
         if platform.system() == "Windows":
 
-            latency = re.search(
-                r'Average = (\d+)ms',
-                output
-            )
+            latency = re.search(r'Average\s*=\s*(\d+)\s*ms',output,re.IGNORECASE)
 
         else:
 
