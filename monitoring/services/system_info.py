@@ -1,6 +1,5 @@
 import socket
 import platform
-import psutil
 
 class SystemInfoService:
     @staticmethod

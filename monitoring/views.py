@@ -1,11 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import DeviceForm
-from monitoring.services.ping_service import ConnectivityTester  
-from monitoring.services.dns_service import DNSService 
-from monitoring.services.performance_service import PerformanceService
 from monitoring.services.system_info import SystemInfoService
 from monitoring.services.interface_service import InterfaceService
-from monitoring.services.wifi_service import WiFiService
 
 # Create your views here.
 from .models import (
