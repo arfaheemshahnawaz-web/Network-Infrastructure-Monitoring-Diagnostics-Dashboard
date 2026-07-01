@@ -1,4 +1,8 @@
-# Network Infrastructure Monitoring & Diagnostics Dashboard
+# Network Infrastructure Monitoring & Diagnostics 
+
+[![Django CI](https://github.com/arfaheemshahnawaz-web/Network-Infrastructure-Monitoring-Diagnostics-Dashboard/actions/workflows/ci.yml/badge.svg)](https://github.com/arfaheemshahnawaz-web/Network-Infrastructure-Monitoring-Diagnostics-Dashboard/actions/workflows/ci.yml)
+
+Dashboard
 
 A Django-based infrastructure monitoring platform designed to demonstrate networking, system monitoring, diagnostics, and backend engineering concepts.
 
