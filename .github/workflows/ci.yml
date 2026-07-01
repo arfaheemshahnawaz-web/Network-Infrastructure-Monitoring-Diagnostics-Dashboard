@@ -11,6 +11,16 @@ on:
 jobs:
   django-ci:
     runs-on: ubuntu-latest
+    env:
+          SECRET_KEY: test-secret-key
+          DEBUG: True
+          DB_NAME: test_db
+          DB_USER: postgres
+          DB_PASSWORD: postgres
+          DB_HOST: localhost
+          DB_PORT: 5432
+          CELERY_BROKER_URL: redis://localhost:6379/0
+          CELERY_RESULT_BACKEND: redis://localhost:6379/0
 
     steps:
       - name: Checkout Repository
@@ -30,17 +40,23 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run Django System Check
-        env:
-          SECRET_KEY: test-secret-key
-          DEBUG: True
-          DB_NAME: test_db
-          DB_USER: postgres
-          DB_PASSWORD: postgres
-          DB_HOST: localhost
-          DB_PORT: 5432
-          CELERY_BROKER_URL: redis://localhost:6379/0
-          CELERY_RESULT_BACKEND: redis://localhost:6379/0
-
+      - name: Lint with Ruff
         run: |
-          python manage.py check
+          ruff check .
+
+      - name: Run Django System Check
+        run: python manage.py check
+
+      - name: Run Django Tests
+        run: python manage.py test
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker Image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          tags: network-monitor-dashboard:latest
+
