@@ -3,6 +3,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+#python environment
+.python-version
+
 #virtualenv
 venv/
 .venv/
@@ -29,8 +32,11 @@ reports/*
 
 #environment variables
 .env
+.env.docker
 .env.*
 !.env.example
+.env.local
+.env.production
 
 #vscode
 .vscode/
@@ -56,7 +62,16 @@ htmlcov/
 *.retry
 
 #docker
-.tar
+docker-compose.override.yml
 
 # Celery Beat Schedule
 celerybeat-schedule*
+
+#Nginx
+nginx/logs/
+
+#mypy
+.mypy_cache/
+
+#ruff 
+.ruff_cache/
