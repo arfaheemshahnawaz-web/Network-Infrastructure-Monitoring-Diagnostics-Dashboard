@@ -23,57 +23,54 @@ pipeline {
             }
         }
 
-        stage('Verify Environment') {
+        stage('Setup Python Environment') {
             steps {
-                sh 'python3 --version'
-                sh 'pip3 --version'
-                sh 'git --version'
-                sh 'docker --version'
-            }
-        }
-
-        stage('Install Dependencies') {
-            steps {
-                sh 'pip3 install -r requirements.txt'
+                sh '''
+                    python3 -m venv venv
+                    . venv/bin/activate
+                    pip install --upgrade pip
+                    pip install -r requirements.txt
+                '''
             }
         }
 
         stage('Code Quality') {
             steps {
-                sh 'ruff check .'
+                sh '''
+                    . venv/bin/activate
+                    ruff check .
+                '''
             }
         }
 
         stage('Django System Check') {
             steps {
-                sh 'python3 manage.py check'
+                sh '''
+                    . venv/bin/activate
+                    python manage.py check
+                '''
             }
         }
 
         stage('Run Tests') {
             steps {
-                sh 'python3 manage.py test'
+                sh '''
+                    . venv/bin/activate
+                    python manage.py test
+                '''
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t network-monitor-dashboard:jenkins .'
+                sh '''
+                    docker build -t network-monitor-dashboard:jenkins .
+                '''
             }
         }
-
     }
 
     post {
-
-        success {
-            echo 'Pipeline completed successfully.'
-        }
-
-        failure {
-            echo 'Pipeline failed.'
-        }
-
         always {
             cleanWs()
         }
