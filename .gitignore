@@ -53,10 +53,7 @@ Thumbs.db
 htmlcov/
 .pytest_cache/
 
-#terraform
-*.tfstate
-*.tfstate.*
-.terraform/
+grafana-storage/
 
 #ansible
 *.retry
