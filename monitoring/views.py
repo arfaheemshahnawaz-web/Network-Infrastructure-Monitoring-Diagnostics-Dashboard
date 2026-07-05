@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .forms import DeviceForm
 from monitoring.services.system_info import SystemInfoService
 from monitoring.services.interface_service import InterfaceService
+from monitoring.services.discover_service import DeviceDiscovery
 
 # Create your views here.
 from .models import (
@@ -160,3 +161,10 @@ def run_wifi_scan(request, pk):
     HealthCheckService.run_wifi(device)
 
     return redirect("device_list")
+
+def discover_devices(request):
+    devices = DeviceDiscovery.discover()
+    context = {
+        'devices': devices
+    }
+    return render(request, 'monitoring/discover_devices.html', context)

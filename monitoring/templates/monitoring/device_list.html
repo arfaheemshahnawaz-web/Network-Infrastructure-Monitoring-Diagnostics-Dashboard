@@ -8,6 +8,7 @@
     <body>
         <h1>Devices</h1>
         <a href="{% url 'add_device' %}">Add New Device</a>
+        <a href="{% url 'discover_devices' %}">Discover Local Devices</a>
         <table>
             <thead>
                 <tr>
@@ -36,10 +37,12 @@
                         <a href="{% url 'run_dns_check' device.id %}">DNS Check</a>
                         <a href="{% url 'run_performance_check' device.id %}">Performance Check</a> 
                         <a href="{% url 'run_wifi_scan' device.id %}">Run Wi-Fi Scan</a>
+                        <a href="{% url 'device_detail' device.id %}">View Device Details</a>
                     </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
+        
     </body>
 </html>
