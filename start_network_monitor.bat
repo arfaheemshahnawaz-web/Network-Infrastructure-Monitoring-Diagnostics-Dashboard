@@ -104,7 +104,7 @@ timeout /t 2 /nobreak >nul
 echo.
 echo Starting Docker services...
 
-docker compose up --build -d
+docker compose up --build -d --force-recreate
 
 if errorlevel 1 (
     echo.
