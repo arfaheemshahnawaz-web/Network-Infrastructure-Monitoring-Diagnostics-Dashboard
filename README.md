@@ -305,6 +305,7 @@ Dashboard + Grafana
 │
 ├── setup_network.py
 ├── host_network_agent.py
+├── start_network_monitor.bat
 ├── docker-compose.yml
 ├── Dockerfile
 ├── entrypoint-web.sh
@@ -373,6 +374,25 @@ The agent exposes ARP information to the Dockerized application.
 
 ---
 
+# Automated Startup
+
+For Windows users, `start_network_monitor.bat` provides a one-click project startup workflow.
+
+The script automates:
+
+- Python environment setup
+- Dependency installation
+- Local network detection
+- `.env.docker.local` generation
+- Windows network agent startup
+- Docker Compose startup
+
+This allows the project to be started without manually executing each setup command.
+
+The script uses the project directory as its working directory, so it can be executed directly after cloning the repository.
+
+---
+
 # Entrypoint Scripts
 
 The project uses dedicated entrypoint scripts for each service.
@@ -402,13 +422,55 @@ The project uses dedicated entrypoint scripts for each service.
 
 ```bash
 git clone https://github.com/arfaheemshahnawaz-web/Network-Infrastructure-Monitoring-Diagnostics-Dashboard.git
-
 cd Network-Infrastructure-Monitoring-Diagnostics-Dashboard
 ```
 
-## Configure Local Network
+---
 
-Run:
+## Windows Quick Start
+
+For Windows environments, the project provides an automated startup script:
+
+```
+start_network_monitor.bat
+```
+
+Double-click `start_network_monitor.bat`.
+
+The script automatically:
+
+1. Checks whether Python is installed.
+2. Creates a Python virtual environment if required.
+3. Installs the required Python dependencies.
+4. Detects the local LAN IP address.
+5. Generates `.env.docker.local`.
+6. Starts the Windows Host Network Agent.
+7. Starts the Docker Compose services.
+
+After startup, the following services are available:
+
+- Django Application: http://localhost
+- Grafana: http://localhost:3000
+- Prometheus: http://localhost:9090
+- Network Agent: port `8765`
+
+### Requirements
+
+Before running the startup script, make sure the machine has:
+
+- Python 3.12 or later
+- Docker Desktop
+- Git
+
+Docker Desktop must be running before the Docker services are started.
+
+---
+
+## Manual Startup
+
+The components can also be started manually if required.
+
+### Configure Local Network
 
 ```bash
 python setup_network.py
@@ -420,22 +482,28 @@ This creates:
 .env.docker.local
 ```
 
-## Start the Host Network Agent
+### Start the Host Network Agent
 
 ```bash
 python host_network_agent.py
 ```
 
-## Start Docker Services
+### Start Docker Services
 
 ```bash
 docker compose up --build -d
 ```
 
-For normal subsequent starts:
+For subsequent starts:
 
 ```bash
 docker compose up -d
+```
+
+### Stop Services
+
+```bash
+docker compose down
 ```
 
 ---
