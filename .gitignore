@@ -33,6 +33,7 @@ reports/*
 #environment variables
 .env
 .env.docker
+.env.docker.local
 .env.*
 !.env.example
 .env.local

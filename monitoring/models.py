@@ -10,12 +10,50 @@ class Device(models.Model):
         ('workstation', 'Workstation'),
     ]
 
+    STATUS_CHOICES = [
+        ('online', 'Online'),
+        ('offline', 'Offline'),
+    ]
+
     hostname = models.CharField(max_length=100)
-    ip_address = models.GenericIPAddressField()
-    device_type = models.CharField(max_length=20, choices=DEVICE_TYPES)
-    os_type = models.CharField(max_length=100)
-    location = models.CharField(max_length=100)
-    created_at = models.DateTimeField(auto_now_add=True)
+
+    ip_address = models.GenericIPAddressField(
+        unique=True
+    )
+
+    mac_address = models.CharField(
+        max_length=17,
+        blank=True,
+        default=""
+    )
+
+    device_type = models.CharField(
+        max_length=20,
+        choices=DEVICE_TYPES,
+        default='workstation'
+    )
+
+    os_type = models.CharField(
+        max_length=100,
+        blank=True,
+        default=""
+    )
+
+    location = models.CharField(
+        max_length=100,
+        blank=True,
+        default=""
+    )
+
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='offline'
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
 
     def __str__(self):
         return self.hostname

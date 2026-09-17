@@ -2,7 +2,11 @@
 
 [![Django CI](https://github.com/arfaheemshahnawaz-web/Network-Infrastructure-Monitoring-Diagnostics-Dashboard/actions/workflows/ci.yml/badge.svg)](https://github.com/arfaheemshahnawaz-web/Network-Infrastructure-Monitoring-Diagnostics-Dashboard/actions/workflows/ci.yml)
 
-A production-style Django application that demonstrates infrastructure monitoring, network diagnostics, backend development, and modern DevOps practices. The project performs network diagnostics, monitors system health, executes background monitoring tasks, and showcases containerized deployment using Docker, Nginx, PostgreSQL, Redis, Celery, Prometheus, Grafana, Jenkins, and GitHub Actions.
+A production-style Django application that demonstrates infrastructure monitoring, network diagnostics, backend development, and modern DevOps practices.
+
+The project performs network diagnostics, monitors device health, stores monitoring data in PostgreSQL, executes scheduled background tasks using Celery, and provides infrastructure metrics through Prometheus and Grafana.
+
+The application uses Docker, Docker Compose, Nginx, PostgreSQL, Redis, Celery, Prometheus, Grafana, Jenkins, and GitHub Actions.
 
 ---
 
@@ -11,14 +15,29 @@ A production-style Django application that demonstrates infrastructure monitorin
 ## Device Management
 
 - Add, Edit and Delete Devices
-- Device Inventory Dashboard
+- Device Inventory
 - Device Details
+- Device Status Tracking
+- Device IP and MAC Address Information
+
+## Device Discovery
+
+- Automatic local network discovery
+- ICMP-based device reachability detection
+- Hostname resolution
+- MAC address detection using the host network agent
+- Automatic saving of discovered devices to PostgreSQL
+- Existing devices are updated instead of creating duplicates
 
 ## Monitoring Dashboard
 
 - Total Devices
 - Online Devices
 - Offline Devices
+- Recent Health Checks
+- Current Device Status
+- Latency Information
+- Packet Loss Information
 
 ## Network Diagnostics
 
@@ -26,6 +45,7 @@ A production-style Django application that demonstrates infrastructure monitorin
 - Device Reachability Checks
 - Packet Loss Measurement
 - Average Latency Measurement
+- Health Check History
 
 ## DNS Monitoring
 
@@ -37,9 +57,12 @@ A production-style Django application that demonstrates infrastructure monitorin
 
 - System Information
 - Network Interface Information
+- Default Gateway Information
+- DNS Server Information
 - CPU Usage Monitoring
 - Memory Usage Monitoring
 - Disk Usage Monitoring
+- Network Traffic Statistics
 
 ## Wi-Fi Diagnostics
 
@@ -50,18 +73,33 @@ Collects nearby wireless network information using native operating system utili
 
 The available Wi-Fi information depends on the underlying operating system and wireless adapter capabilities.
 
+When running inside Docker, Wi-Fi scanning is skipped gracefully if the required native utility is unavailable inside the container.
+
 ## Infrastructure Monitoring
 
 - Prometheus Metrics Collection
 - Grafana Dashboards
-- Docker Container Monitoring (cAdvisor)
-- Host System Monitoring (Node Exporter)
+- Docker Container Monitoring using cAdvisor
+- Host System Monitoring using Node Exporter
+- Django Application Metrics
+
+## Background Monitoring
+
+- Celery Worker
+- Celery Beat
+- Redis Message Broker
+- Scheduled Health Checks
+- Automatic Ping Health Checks
+- Automatic DNS Checks
+- Automatic Performance Checks
+- Wi-Fi Diagnostics with graceful failure handling
 
 ## Diagnostic History
 
 - Health Check History
 - DNS Check History
 - Performance History
+- Wi-Fi Scan History
 
 ---
 
@@ -72,6 +110,11 @@ The application currently monitors **the host machine on which the monitoring se
 - Device records represent monitored endpoints.
 - System diagnostics are collected from the monitoring host.
 - Network diagnostics execute from the monitoring host.
+- Discovered devices are stored in PostgreSQL.
+- Device status is updated through health checks.
+- Background monitoring is performed using Celery and Celery Beat.
+
+For Windows-based environments, a lightweight host network agent provides ARP/MAC address information to the Dockerized application.
 
 Future versions can be extended with:
 
@@ -98,6 +141,7 @@ Future versions can be extended with:
 - Celery
 - Celery Beat
 - Redis
+- Django Celery Beat
 
 ## Reverse Proxy
 
@@ -120,34 +164,85 @@ Future versions can be extended with:
 - GitHub Actions
 - Jenkins
 
+## Networking
+
+- TCP/IP
+- ICMP
+- DNS
+- ARP
+- Wi-Fi diagnostics
+- Network interface monitoring
+
 ---
 
 # Architecture
 
-```
-                        Grafana
+```text
+                         Grafana
+                            │
+                            ▼
+                       Prometheus
+                    /       │       \
+                   /        │        \
+                  ▼         ▼         ▼
+          Node Exporter  cAdvisor  Django Metrics
+                                      │
+                                      ▼
+                                    Nginx
+                                      │
+                                      ▼
+                                  Gunicorn
+                                      │
+                                      ▼
+                                   Django
+                              /       │       \
+                             ▼        ▼        ▼
+                        PostgreSQL  Redis   Celery Worker
+                                          │
+                                          ▼
+                                      Celery Beat
+
+
+                 Windows Host Network Agent
                            │
+                           │ ARP / MAC
                            ▼
-                     Prometheus
-                    /     |      \
-                   /      |       \
-                  ▼       ▼        ▼
-          Node Exporter cAdvisor Django Metrics
-                                   │
-                                   ▼
-                              Nginx
-                                │
-                                ▼
-                           Gunicorn
-                                │
-                                ▼
-                             Django
-                        /       |        \
-                       ▼        ▼         ▼
-                 PostgreSQL   Redis   Celery Worker
-                                     │
-                                     ▼
-                                Celery Beat
+                        Django
+```
+
+## Monitoring Workflow
+
+```text
+Network Discovery
+       │
+       ▼
+Find Reachable Devices
+       │
+       ▼
+IP + Hostname + MAC
+       │
+       ▼
+Save / Update Device
+       │
+       ▼
+PostgreSQL
+       │
+       ▼
+Celery Beat
+       │
+       ▼
+Scheduled Health Checks
+       │
+       ├── Ping
+       ├── DNS
+       ├── Performance
+       └── Wi-Fi
+       │
+       ▼
+HealthCheck / Diagnostic History
+       │
+       ▼
+Dashboard + Grafana
 ```
 
 ---
@@ -157,6 +252,7 @@ Future versions can be extended with:
 - TCP/IP Fundamentals
 - ICMP (Ping)
 - DNS Resolution
+- ARP
 - Network Reachability
 - Packet Loss Analysis
 - Network Latency Monitoring
@@ -171,8 +267,22 @@ Future versions can be extended with:
 ```
 .
 ├── config/
+│   ├── settings.py
+│   ├── urls.py
+│   ├── celery.py
+│   └── ...
+│
 ├── monitoring/
 │   ├── services/
+│   │   ├── discover_service.py
+│   │   ├── dns_service.py
+│   │   ├── health_check_service.py
+│   │   ├── interface_service.py
+│   │   ├── performance_service.py
+│   │   ├── ping_service.py
+│   │   ├── system_info.py
+│   │   └── wifi_service.py
+│   │
 │   ├── templates/
 │   ├── static/
 │   ├── models.py
@@ -180,13 +290,21 @@ Future versions can be extended with:
 │   ├── views.py
 │   ├── urls.py
 │   └── forms.py
+│
 ├── monitoring-stack/
 │   └── prometheus/
 │       └── prometheus.yml
+│
 ├── nginx/
+│   └── nginx.conf
+│
+├── jenkins/
+│
 ├── .github/
 │   └── workflows/
-├── jenkins/
+│
+├── setup_network.py
+├── host_network_agent.py
 ├── docker-compose.yml
 ├── Dockerfile
 ├── entrypoint-web.sh
@@ -194,6 +312,7 @@ Future versions can be extended with:
 ├── entrypoint-beat.sh
 ├── .env
 ├── .env.docker
+├── .env.docker.local
 ├── manage.py
 └── requirements.txt
 ```
@@ -202,32 +321,55 @@ Future versions can be extended with:
 
 # Environment Configuration
 
-The project uses two environment files:
+The project uses environment-specific configuration files.
 
 ## `.env`
 
-Used for **local Django development**.
+Used for local Django development.
 
 ## `.env.docker`
 
-Used when running the application using Docker Compose.
+Used for Docker Compose configuration.
 
-Typical variables include:
+## `.env.docker.local`
+
+Used for machine-specific network configuration.
+
+This file is generated automatically by:
+
+```bash
+python setup_network.py
+```
+
+Example:
 
 ```env
-SECRET_KEY=your_secret_key
-
-DEBUG=True
-
-DB_NAME=network_monitor
-DB_USER=postgres
-DB_PASSWORD=postgres
-DB_HOST=db
-DB_PORT=5432
-
-CELERY_BROKER_URL=redis://redis:6379/0
-CELERY_RESULT_BACKEND=redis://redis:6379/0
+DISCOVERY_NETWORK=192.168.1.0/24
+DISCOVERY_AGENT_HOST=192.168.1.7
+DISCOVERY_AGENT_PORT=8765
 ```
+
+The local network configuration file should not be committed because the values depend on the machine and network where the project is running.
+
+---
+
+# Network Setup
+
+Run:
+
+```bash
+python setup_network.py
+```
+
+The script detects the local LAN IP and generates `.env.docker.local`.
+
+The Windows network agent can then be started using:
+
+```bash
+python host_network_agent.py
+```
+
+The agent exposes ARP information to the Dockerized application.
 
 ---
 
@@ -264,10 +406,36 @@ git clone https://github.com/arfaheemshahnawaz-web/Network-Infrastructure-Monito
 cd Network-Infrastructure-Monitoring-Diagnostics-Dashboard
 ```
 
-## Start the Application
+## Configure Local Network
+
+Run:
 
 ```bash
-docker compose up --build
+python setup_network.py
+```
+
+This creates:
+
+```
+.env.docker.local
+```
+
+## Start the Host Network Agent
+
+```bash
+python host_network_agent.py
+```
+
+## Start Docker Services
+
+```bash
+docker compose up --build -d
+```
+
+For normal subsequent starts:
+
+```bash
+docker compose up -d
 ```
 
 ---
@@ -279,6 +447,29 @@ docker compose up --build
 | Django Application | http://localhost |
 | Grafana | http://localhost:3000 |
 | Prometheus | http://localhost:9090 |
+
+---
+
+# Scheduled Monitoring
+
+Celery Beat schedules the health-check task using Django Celery Beat.
+
+The task:
+
+```
+monitoring.tasks.run_all_health_checks
+```
+
+runs periodically and performs:
+
+- Ping
+- DNS
+- Performance
+- Wi-Fi
+
+Health-check results are stored in PostgreSQL.
+
+The current device status is also updated based on the latest ping result.
 
 ---
 
@@ -299,42 +490,6 @@ A Jenkins pipeline is included to demonstrate CI automation and Docker image bui
 
 ---
 
-# Current Status
-
-## Completed
-
-- Device CRUD
-- Dashboard
-- Ping Diagnostics
-- DNS Diagnostics
-- Performance Monitoring
-- System Information
-- Wi-Fi Diagnostics
-- Diagnostic History
-- PostgreSQL Integration
-- Redis Integration
-- Celery Worker
-- Celery Beat Scheduler
-- Docker Containerization
-- Gunicorn
-- Nginx Reverse Proxy
-- Prometheus Integration
-- Grafana Dashboards
-- Node Exporter
-- cAdvisor
-- GitHub Actions CI
-- Jenkins Pipeline
-
-## Future Improvements
-
-- Scheduled Health Checks
-- Email Notifications
-- Additional Grafana Dashboards
-- Remote Agent Monitoring
-- SSH-Based Monitoring
-
----
-
 # Learning Objectives
 
 This project demonstrates practical experience with:
@@ -342,9 +497,11 @@ This project demonstrates practical experience with:
 - Python Backend Development
 - Django
 - Infrastructure Monitoring
+- Network Diagnostics
 - Linux Networking Concepts
 - TCP/IP & ICMP Diagnostics
 - DNS Resolution
+- ARP
 - Wi-Fi Diagnostics
 - Docker & Docker Compose
 - Gunicorn
@@ -364,6 +521,6 @@ This project demonstrates practical experience with:
 
 **A R Faheem Shah Nawaz**
 
-GitHub: https://github.com/arfaheemshahnawaz-web
+GitHub: [https://github.com/arfaheemshahnawaz-web](https://github.com/arfaheemshahnawaz-web)
 
-LinkedIn: https://www.linkedin.com/in/a-r-faheem-shah-nawaz
+LinkedIn: [https://www.linkedin.com/in/a-r-faheem-shah-nawaz](https://www.linkedin.com/in/a-r-faheem-shah-nawaz)

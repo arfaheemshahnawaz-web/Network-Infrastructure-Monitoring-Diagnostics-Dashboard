@@ -35,10 +35,13 @@ services:
     container_name: network-monitor-dashboard
     ports:
       - "8000:8000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     entrypoint: ./entrypoint-web.sh
     command: gunicorn config.wsgi:application --bind 0.0.0.0:8000 --worker-tmp-dir /dev/shm
     env_file:
       - .env.docker
+      - .env.docker.local
     volumes:
       - .:/app
     depends_on:
@@ -64,6 +67,7 @@ services:
     command: celery -A config worker -l info
     env_file:
       - .env.docker
+      - .env.docker.local
     volumes:
       - .:/app
     depends_on:
@@ -79,6 +83,7 @@ services:
     command: celery -A config beat -l info
     env_file:
       - .env.docker
+      - .env.docker.local
     volumes:
       - .:/app
     depends_on:

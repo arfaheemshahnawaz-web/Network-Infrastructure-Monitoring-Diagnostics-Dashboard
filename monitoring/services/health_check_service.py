@@ -20,14 +20,22 @@ class HealthCheckService:
 
         result = tester.ping(device.ip_address)
 
-        return HealthCheck.objects.create(
+        health_check = HealthCheck.objects.create(
             device=device,
             status=result["status"],
-            latency=result["avg_latency"]
-            if result["avg_latency"] != "N/A"
-            else 0,
-            packet_loss=result["packet_loss"]
+            latency=(
+                float(result["avg_latency"])
+                if result["avg_latency"] != "N/A"
+                else 0
+            ),
+            packet_loss=float(result["packet_loss"])
         )
+
+        # Update current device status
+        device.status = result["status"]
+        device.save(update_fields=["status"])
+
+        return health_check
 
     @staticmethod
     def run_dns(device):
@@ -61,18 +69,25 @@ class HealthCheckService:
     @staticmethod
     def run_wifi(device):
 
-        WiFiScan.objects.filter(device=device).delete()
+        try:
+            WiFiScan.objects.filter(device=device).delete()
 
-        networks = WiFiService.scan()
+            networks = WiFiService.scan()
 
-        for network in networks:
+            for network in networks:
 
-            WiFiScan.objects.create(
-                device=device,
-                ssid=network.get("ssid", ""),
-                bssid=network.get("bssid", ""),
-                signal=network.get("signal", 0),
-                channel=network.get("channel", 0),
-                band=network.get("band", ""),
-                security=network.get("security", ""),
-            )
+                WiFiScan.objects.create(
+                    device=device,
+                    ssid=network.get("ssid", ""),
+                    bssid=network.get("bssid", ""),
+                    signal=network.get("signal", 0),
+                    channel=network.get("channel", 0),
+                    band=network.get("band", ""),
+                    security=network.get("security", ""),
+                )
+
+        except FileNotFoundError:
+            print("Wi-Fi scan skipped: nmcli is not available in the container.")
+
+        except Exception as e:
+            print(f"Wi-Fi scan failed: {e}")

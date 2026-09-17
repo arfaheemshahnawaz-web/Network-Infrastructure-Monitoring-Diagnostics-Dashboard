@@ -15,14 +15,33 @@ from .models import (
 
 def dashboard(request):
     total_devices = Device.objects.count()
-    online_devices = HealthCheck.objects.filter(status='online').count()
-    offline_devices = HealthCheck.objects.filter(status='offline').count()
+
+    online_devices = Device.objects.filter(
+        status='online'
+    ).count()
+
+    offline_devices = Device.objects.filter(
+        status='offline'
+    ).count()
+
+    recent_checks = (
+        HealthCheck.objects
+        .select_related('device')
+        .order_by('-checked_at')[:10]
+    )
+
     context = {
         'total_devices': total_devices,
         'online_devices': online_devices,
         'offline_devices': offline_devices,
+        'recent_checks': recent_checks,
     }
-    return render(request, 'monitoring/dashboard.html', context)
+
+    return render(
+        request,
+        'monitoring/dashboard.html',
+        context
+    )
 
 def device_list(request):
     devices = Device.objects.all()
